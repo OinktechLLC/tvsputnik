@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube-Russia Proxy Player</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/dist/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f0f0f;
+            color: #ffffff;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 */
+            height: 0;
+            overflow: hidden;
+            border-radius: 12px;
+            background: #000;
+        }
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .custom-shadow {
+            box-shadow: 0 10px 30px -10px rgba(255, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <header class="p-4 border-b border-white/10 flex items-center justify-between sticky top-0 bg-[#0f0f0f]/90 z-50 backdrop-blur-md">
+        <div class="flex items-center gap-2">
+            <div class="bg-red-600 p-1.5 rounded-lg">
+                <i class="fab fa-youtube text-xl text-white"></i>
+            </div>
+            <span class="text-xl font-bold tracking-tight">YouTube<span class="text-red-600">Russia</span></span>
+        </div>
+        <div class="hidden md:flex items-center gap-4 text-sm text-gray-400">
+            <span><i class="fas fa-user-secret mr-1"></i> Без слежки</span>
+            <span><i class="fas fa-bolt mr-1"></i> С прокси</span>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-8 max-w-5xl">
+        
+        <div class="mb-8">
+            <h1 class="text-2xl md:text-4xl font-bold mb-4 text-center">Смотрите YouTube без замедлений</h1>
+            <p class="text-gray-400 text-center mb-8">Вставьте ссылку на видео, и мы подберем рабочий прокси-сервер.</p>
+            
+            <div class="flex flex-col md:flex-row gap-3">
+                <div class="relative flex-grow">
+                    <input 
+                        type="text" 
+                        id="videoUrl" 
+                        placeholder="Вставьте ссылку: https://www.youtube.com/watch?v=..." 
+                        class="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-5 pr-12 focus:outline-none focus:ring-2 focus:ring-red-600 transition-all"
+                    >
+                    <button onclick="clearInput()" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <button 
+                    onclick="loadVideo()" 
+                    class="bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-8 rounded-xl transition-all flex items-center justify-center gap-2 custom-shadow"
+                >
+                    <i class="fas fa-play"></i> Запустить
+                </button>
+            </div>
+        </div>
+
+        <div id="playerArea" class="hidden animate-in fade-in duration-500">
+            <div class="video-container mb-6 shadow-2xl">
+                <iframe id="mainPlayer" src="" allowfullscreen></iframe>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="md:col-span-2 glass-card p-4 rounded-xl">
+                    <h3 class="font-semibold mb-3 flex items-center gap-2">
+                        <i class="fas fa-server text-red-500"></i> Выбор прокси-сервера (Зеркала)
+                    </h3>
+                    <div class="flex flex-wrap gap-2" id="mirrorList">
+                        <!-- Mirrors will be injected here -->
+                    </div>
+                    <p class="mt-4 text-xs text-gray-500">
+                        * Если плеер не грузится или "черный экран", попробуйте сменить зеркало. Каждое зеркало — это отдельный сервер-прокси.
+                    </p>
+                </div>
+
+                <div class="glass-card p-4 rounded-xl">
+                    <h3 class="font-semibold mb-3">Информация</h3>
+                    <div class="space-y-3 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">ID Видео:</span>
+                            <span id="displayVid" class="text-red-400 font-mono">---</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Режим:</span>
+                            <span class="text-green-400">Proxy/No-Cookie</span>
+                        </div>
+                        <button onclick="copyCurrentLink()" class="w-full mt-2 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-xs transition-all">
+                            Копировать прокси-ссылку
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="placeholder" class="text-center py-20 opacity-30">
+            <i class="fas fa-film text-8xl mb-4"></i>
+            <p>Плеер появится здесь после ввода ссылки</p>
+        </div>
+
+    </main>
+
+    <script>
+        const mirrors = [
+            { name: 'Invidious (v1)', url: 'https://invidious.snopyta.org/embed/' },
+            { name: 'Invidious (v2)', url: 'https://yewtu.be/embed/' },
+            { name: 'Invidious (v3)', url: 'https://iv.ggtyler.dev/embed/' },
+            { name: 'Invidious (v4)', url: 'https://invidious.flokinet.to/embed/' },
+            { name: 'Piped (Alt)', url: 'https://pipedapi.kavin.rocks/embed/' },
+            { name: 'Invidious (Local)', url: 'https://invidious.perennialte.ch/embed/' }
+        ];
+
+        let currentVideoId = '';
+
+        function extractVideoId(url) {
+            const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[7].length == 11) ? match[7] : false;
+        }
+
+        function loadVideo() {
+            const input = document.getElementById('videoUrl').value;
+            const id = extractVideoId(input);
+
+            if (id) {
+                currentVideoId = id;
+                document.getElementById('displayVid').innerText = id;
+                document.getElementById('playerArea').classList.remove('hidden');
+                document.getElementById('placeholder').classList.add('hidden');
+                
+                // Build mirror buttons
+                renderMirrors();
+                // Load default first mirror
+                switchMirror(mirrors[0].url);
+            } else {
+                showToast("Пожалуйста, введите корректную ссылку на YouTube");
+            }
+        }
+
+        function renderMirrors() {
+            const container = document.getElementById('mirrorList');
+            container.innerHTML = '';
+            mirrors.forEach((mirror, index) => {
+                const btn = document.createElement('button');
+                btn.className = "px-4 py-2 rounded-lg bg-white/10 hover:bg-red-600 transition-all text-sm font-medium border border-white/5";
+                btn.innerText = mirror.name;
+                btn.onclick = () => switchMirror(mirror.url);
+                container.appendChild(btn);
+            });
+        }
+
+        function switchMirror(baseUrl) {
+            const player = document.getElementById('mainPlayer');
+            player.src = baseUrl + currentVideoId;
+            
+            // Highlight active mirror (simple visual feedback)
+            const buttons = document.querySelectorAll('#mirrorList button');
+            buttons.forEach(b => {
+                if(b.innerText === mirrors.find(m => m.url === baseUrl).name) {
+                    b.classList.add('bg-red-600', 'border-red-400');
+                } else {
+                    b.classList.remove('bg-red-600', 'border-red-400');
+                }
+            });
+        }
+
+        function clearInput() {
+            document.getElementById('videoUrl').value = '';
+        }
+
+        function copyCurrentLink() {
+            const dummy = document.createElement('input');
+            document.body.appendChild(dummy);
+            dummy.value = window.location.href + "?v=" + currentVideoId;
+            dummy.select();
+            document.execCommand('copy');
+            document.body.removeChild(dummy);
+            showToast("Ссылка скопирована (условно)");
+        }
+
+        function showToast(msg) {
+            // Simple message box instead of alert
+            const toast = document.createElement('div');
+            toast.className = "fixed bottom-4 right-4 bg-red-600 text-white px-6 py-3 rounded-xl shadow-lg z-[100] transition-all animate-bounce";
+            toast.innerText = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Auto-load if ID in URL (optional feature)
+        window.onload = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const v = urlParams.get('v');
+            if (v) {
+                document.getElementById('videoUrl').value = 'https://youtube.com/watch?v=' + v;
+                loadVideo();
+            }
+        };
+    </script>
+
+    <footer class="p-6 text-center text-gray-500 text-sm">
+        <p>&copy; 2024 YouTube-Russia Gateway. Сделано для свободного доступа к контенту.</p>
+        <p class="mt-1">Используются технологии Invidious API и Tailwind CSS.</p>
+    </footer>
+
+</body>
+</html>
