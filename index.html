@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TVSPUTNIK - Поиск ТВ каналов и Радио по всему миру | Смотреть онлайн</title>
+    <meta name="description" content="TVSPUTNIK - глобальный поисковик ТВ каналов и радиостанций со всего мира. Листайте карту Земли, выбирайте страну и смотрите оригинальные трансляции в нашем плеере.">
+    <meta name="keywords" content="ТВ каналы, радио, смотреть онлайн, спутниковое ТВ, мировые каналы, TVSPUTNIK, телевидение, радио онлайн, карта каналов">
+    <meta name="author" content="TVSPUTNIK">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="TVSPUTNIK - Поиск ТВ каналов и Радио по всему миру">
+    <meta property="og:description" content="Глобальный поисковик ТВ каналов и радиостанций. Смотрите оригинальные трансляции со всего мира.">
+    <meta property="og:type" content="website">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Favicon placeholder -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛰️</text></svg>">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <span class="logo-icon">🛰️</span>
+                <h1>TVSPUTNIK</h1>
+            </div>
+            <nav class="nav">
+                <a href="#map-section" class="nav-link">Карта</a>
+                <a href="#about" class="nav-link">О проекте</a>
+                <a href="#contact" class="nav-link">Контакты</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Map Section -->
+        <section id="map-section" class="map-section">
+            <div class="container">
+                <h2 class="section-title">Найдите ТВ каналы и Радио любой страны</h2>
+                <p class="section-subtitle">Листайте карту, выбирайте страну и смотрите оригинальные трансляции</p>
+                <div id="world-map" class="world-map"></div>
+                <div class="search-info" id="search-info">
+                    <div class="robot-avatar">🤖</div>
+                    <p class="robot-message">Поисковой робот TVSPUTNIK готов к работе! Выберите страну на карте для поиска каналов и радио.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Player Modal -->
+        <div id="player-modal" class="player-modal">
+            <div class="modal-content">
+                <button class="close-btn" id="close-player">&times;</button>
+                <div class="player-container">
+                    <video id="video-player" class="video-player" controls playsinline>
+                        Ваш браузер не поддерживает видео.
+                    </video>
+                    <audio id="audio-player" class="audio-player" controls style="display: none;">
+                        Ваш браузер не поддерживает аудио.
+                    </audio>
+                    <div class="channel-info">
+                        <h3 id="channel-name">Название канала</h3>
+                        <p id="channel-country">Страна</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Country Channels List -->
+        <section id="channels-section" class="channels-section">
+            <div class="container">
+                <h2 class="section-title" id="country-title">Каналы и Радио</h2>
+                <div class="channels-grid" id="channels-grid">
+                    <!-- Channels will be loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="about-section">
+            <div class="container">
+                <h2 class="section-title">О TVSPUTNIK</h2>
+                <div class="about-content">
+                    <p>TVSPUTNIK - это инновационный поисковой робот, который помогает находить ТВ каналы и радиостанции со всего мира. Наш сервис предоставляет доступ к оригинальным трансляциям напрямую с официальных источников.</p>
+                    <p>Просто выберите интересующую вас страну на интерактивной карте, и наш поисковой робот мгновенно найдет все доступные каналы и радиостанции.</p>
+                    <ul class="features-list">
+                        <li>🌍 Глобальный охват - каналы со всех континентов</li>
+                        <li>📺 Оригинальное качество - прямые трансляции без посредников</li>
+                        <li>🔍 Умный поиск - автоматическое определение доступных потоков</li>
+                        <li>📱 Адаптивный дизайн - работает на всех устройствах</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="contact-section">
+            <div class="container">
+                <h2 class="section-title">Контакты</h2>
+                <div class="contact-content">
+                    <p>Есть вопросы или предложения? Свяжитесь с нами:</p>
+                    <p>Email: <a href="mailto:info@tvsputnik.com">info@tvsputnik.com</a></p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 TVSPUTNIK. Все права защищены.</p>
+            <p class="seo-text">Поисковой робот ТВ каналов и радио по всему миру. Смотреть онлайн телевидение и слушать радио из любой страны.</p>
+        </div>
+    </footer>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- HLS.js for M3U8 playback -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    
+    <!-- Custom JS -->
+    <script src="js/channels-data.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
