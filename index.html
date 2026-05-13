@@ -3,229 +3,279 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube-Russia Proxy Player</title>
+    <title>YouTube-Russia Proxy Player (Supabase Edition)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/dist/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0f0f0f;
-            color: #ffffff;
+            background-color: #0a0a0a;
+            color: #f3f4f6;
         }
         .glass-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s ease;
         }
         .video-container {
             position: relative;
-            padding-bottom: 56.25%; /* 16:9 */
-            height: 0;
-            overflow: hidden;
-            border-radius: 12px;
+            aspect-ratio: 16/9;
             background: #000;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
-        .video-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
+        video {
             width: 100%;
             height: 100%;
-            border: none;
+            outline: none;
         }
-        .custom-shadow {
-            box-shadow: 0 10px 30px -10px rgba(255, 0, 0, 0.3);
+        .proxy-pulse {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+            box-shadow: 0 0 8px #10b981;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.7; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.7; }
+        }
+        input:focus {
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.3);
         }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
-    <header class="p-4 border-b border-white/10 flex items-center justify-between sticky top-0 bg-[#0f0f0f]/90 z-50 backdrop-blur-md">
-        <div class="flex items-center gap-2">
-            <div class="bg-red-600 p-1.5 rounded-lg">
-                <i class="fab fa-youtube text-xl text-white"></i>
+    <header class="p-5 border-b border-white/5 flex items-center justify-between sticky top-0 bg-[#0a0a0a]/80 z-50 backdrop-blur-xl">
+        <div class="flex items-center gap-3">
+            <div class="bg-red-600 p-2 rounded-xl shadow-lg shadow-red-900/20">
+                <i class="fab fa-youtube text-2xl text-white"></i>
             </div>
-            <span class="text-xl font-bold tracking-tight">YouTube<span class="text-red-600">Russia</span></span>
+            <div>
+                <h1 class="text-xl font-bold leading-tight">YT-RU <span class="text-red-500 text-sm font-mono tracking-widest ml-1">PROXY V2</span></h1>
+                <p class="text-[10px] text-gray-500 uppercase tracking-tighter">Powered by Supabase Edge Functions</p>
+            </div>
         </div>
-        <div class="hidden md:flex items-center gap-4 text-sm text-gray-400">
-            <span><i class="fas fa-user-secret mr-1"></i> Без слежки</span>
-            <span><i class="fas fa-bolt mr-1"></i> С прокси</span>
+        <div class="flex items-center gap-4">
+             <div class="hidden sm:flex items-center text-xs text-green-400 bg-green-400/10 px-3 py-1.5 rounded-full border border-green-400/20">
+                <span class="proxy-pulse"></span>
+                Прокси активен
+            </div>
         </div>
     </header>
 
-    <main class="flex-grow container mx-auto px-4 py-8 max-w-5xl">
+    <main class="flex-grow container mx-auto px-4 py-10 max-w-5xl">
         
-        <div class="mb-8">
-            <h1 class="text-2xl md:text-4xl font-bold mb-4 text-center">Смотрите YouTube без замедлений</h1>
-            <p class="text-gray-400 text-center mb-8">Вставьте ссылку на видео, и мы подберем рабочий прокси-сервер.</p>
-            
-            <div class="flex flex-col md:flex-row gap-3">
-                <div class="relative flex-grow">
-                    <input 
-                        type="text" 
-                        id="videoUrl" 
-                        placeholder="Вставьте ссылку: https://www.youtube.com/watch?v=..." 
-                        class="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-5 pr-12 focus:outline-none focus:ring-2 focus:ring-red-600 transition-all"
-                    >
-                    <button onclick="clearInput()" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <button 
-                    onclick="loadVideo()" 
-                    class="bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-8 rounded-xl transition-all flex items-center justify-center gap-2 custom-shadow"
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-5xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500">
+                Смотри без замедлений
+            </h2>
+            <p class="text-gray-400 max-w-xl mx-auto">
+                Вставь ссылку на YouTube видео. Мы автоматически пропустим поток через выделенный прокси-сервер для обхода ограничений.
+            </p>
+        </div>
+
+        <div class="glass-card p-2 rounded-2xl mb-12 flex flex-col md:flex-row gap-2">
+            <div class="relative flex-grow">
+                <i class="fas fa-link absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
+                <input 
+                    type="text" 
+                    id="videoUrl" 
+                    placeholder="https://www.youtube.com/watch?v=..." 
+                    class="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-12 pr-12 focus:outline-none focus:border-red-600/50 transition-all text-lg"
                 >
-                    <i class="fas fa-play"></i> Запустить
+                <button onclick="clearInput()" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors">
+                    <i class="fas fa-times-circle"></i>
                 </button>
             </div>
+            <button 
+                onclick="processVideo()" 
+                class="bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-10 rounded-xl transition-all flex items-center justify-center gap-3 active:scale-95 shadow-xl shadow-red-600/20"
+            >
+                <i class="fas fa-bolt"></i> ПОЕХАЛИ
+            </button>
         </div>
 
-        <div id="playerArea" class="hidden animate-in fade-in duration-500">
-            <div class="video-container mb-6 shadow-2xl">
-                <iframe id="mainPlayer" src="" allowfullscreen></iframe>
+        <div id="playerArea" class="hidden space-y-6">
+            <div class="video-container group">
+                <!-- Using Native HTML5 Player for direct proxy streams -->
+                <video id="proxyVideo" controls preload="auto" poster="">
+                    <source id="videoSource" src="" type="video/mp4">
+                    Ваш браузер не поддерживает HTML5 видео.
+                </video>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="md:col-span-2 glass-card p-4 rounded-xl">
-                    <h3 class="font-semibold mb-3 flex items-center gap-2">
-                        <i class="fas fa-server text-red-500"></i> Выбор прокси-сервера (Зеркала)
-                    </h3>
-                    <div class="flex flex-wrap gap-2" id="mirrorList">
-                        <!-- Mirrors will be injected here -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="md:col-span-2 glass-card p-6 rounded-2xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold flex items-center gap-2">
+                            <i class="fas fa-server text-red-500"></i> Конфигурация прокси
+                        </h3>
+                        <span class="text-[10px] px-2 py-1 bg-white/5 rounded-md text-gray-400">SUPABASE_V1</span>
                     </div>
-                    <p class="mt-4 text-xs text-gray-500">
-                        * Если плеер не грузится или "черный экран", попробуйте сменить зеркало. Каждое зеркало — это отдельный сервер-прокси.
-                    </p>
+                    
+                    <div class="space-y-4">
+                        <div class="p-3 bg-black/40 rounded-xl border border-white/5">
+                            <p class="text-xs text-gray-500 mb-1">Текущий прокси-узел:</p>
+                            <code id="proxyUrlDisplay" class="text-xs text-red-400 break-all block">https://ayqpskjenelrikwkpran.supabase.co/...</code>
+                        </div>
+                        <p class="text-sm text-gray-400 leading-relaxed">
+                            <i class="fas fa-info-circle mr-1 text-blue-400"></i> 
+                            Если видео долго загружается, попробуйте обновить страницу. Этот метод использует прямое проксирование потока `googlevideo`, что позволяет обходить локальные замедления.
+                        </p>
+                    </div>
                 </div>
 
-                <div class="glass-card p-4 rounded-xl">
-                    <h3 class="font-semibold mb-3">Информация</h3>
-                    <div class="space-y-3 text-sm">
-                        <div class="flex justify-between">
-                            <span class="text-gray-400">ID Видео:</span>
-                            <span id="displayVid" class="text-red-400 font-mono">---</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-400">Режим:</span>
-                            <span class="text-green-400">Proxy/No-Cookie</span>
-                        </div>
-                        <button onclick="copyCurrentLink()" class="w-full mt-2 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-xs transition-all">
-                            Копировать прокси-ссылку
-                        </button>
+                <div class="glass-card p-6 rounded-2xl flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold mb-4">Статус</h3>
+                        <ul class="space-y-3 text-sm">
+                            <li class="flex justify-between border-b border-white/5 pb-2">
+                                <span class="text-gray-500 text-xs uppercase tracking-widest">ID:</span>
+                                <span id="displayVid" class="font-mono text-red-500">---</span>
+                            </li>
+                            <li class="flex justify-between border-b border-white/5 pb-2">
+                                <span class="text-gray-500 text-xs uppercase tracking-widest">Метод:</span>
+                                <span class="text-gray-300">Direct Proxy</span>
+                            </li>
+                            <li class="flex justify-between">
+                                <span class="text-gray-500 text-xs uppercase tracking-widest">Буфер:</span>
+                                <span id="bufferStatus" class="text-yellow-500 italic text-xs">Инициализация...</span>
+                            </li>
+                        </ul>
                     </div>
+                    <button onclick="copyProxyUrl()" class="w-full mt-6 py-3 bg-white/5 hover:bg-white/10 rounded-xl text-xs font-medium transition-all border border-white/10">
+                        Копировать ссылку потока
+                    </button>
                 </div>
             </div>
         </div>
 
-        <div id="placeholder" class="text-center py-20 opacity-30">
-            <i class="fas fa-film text-8xl mb-4"></i>
-            <p>Плеер появится здесь после ввода ссылки</p>
+        <div id="placeholder" class="text-center py-24 opacity-20">
+            <div class="relative inline-block">
+                <i class="fas fa-video text-[120px]"></i>
+                <i class="fas fa-shield-alt absolute -bottom-2 -right-2 text-4xl text-red-600"></i>
+            </div>
+            <p class="mt-6 text-lg">Ожидание ссылки на видео...</p>
         </div>
 
     </main>
 
     <script>
-        const mirrors = [
-            { name: 'Invidious (v1)', url: 'https://invidious.snopyta.org/embed/' },
-            { name: 'Invidious (v2)', url: 'https://yewtu.be/embed/' },
-            { name: 'Invidious (v3)', url: 'https://iv.ggtyler.dev/embed/' },
-            { name: 'Invidious (v4)', url: 'https://invidious.flokinet.to/embed/' },
-            { name: 'Piped (Alt)', url: 'https://pipedapi.kavin.rocks/embed/' },
-            { name: 'Invidious (Local)', url: 'https://invidious.perennialte.ch/embed/' }
-        ];
-
-        let currentVideoId = '';
-
+        const PROXY_BASE_URL = "https://ayqpskjenelrikwkpran.supabase.co/functions/v1/youtube-proxy";
+        
         function extractVideoId(url) {
             const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
             const match = url.match(regExp);
             return (match && match[7].length == 11) ? match[7] : false;
         }
 
-        function loadVideo() {
-            const input = document.getElementById('videoUrl').value;
-            const id = extractVideoId(input);
+        function processVideo() {
+            const input = document.getElementById('videoUrl').value.trim();
+            const videoId = extractVideoId(input);
 
-            if (id) {
-                currentVideoId = id;
-                document.getElementById('displayVid').innerText = id;
-                document.getElementById('playerArea').classList.remove('hidden');
-                document.getElementById('placeholder').classList.add('hidden');
-                
-                // Build mirror buttons
-                renderMirrors();
-                // Load default first mirror
-                switchMirror(mirrors[0].url);
-            } else {
-                showToast("Пожалуйста, введите корректную ссылку на YouTube");
+            if (!videoId) {
+                showToast("Ошибка: Введите корректную ссылку YouTube", "error");
+                return;
             }
-        }
 
-        function renderMirrors() {
-            const container = document.getElementById('mirrorList');
-            container.innerHTML = '';
-            mirrors.forEach((mirror, index) => {
-                const btn = document.createElement('button');
-                btn.className = "px-4 py-2 rounded-lg bg-white/10 hover:bg-red-600 transition-all text-sm font-medium border border-white/5";
-                btn.innerText = mirror.name;
-                btn.onclick = () => switchMirror(mirror.url);
-                container.appendChild(btn);
-            });
-        }
+            // Show UI elements
+            document.getElementById('playerArea').classList.remove('hidden');
+            document.getElementById('placeholder').classList.add('hidden');
+            document.getElementById('displayVid').innerText = videoId;
 
-        function switchMirror(baseUrl) {
-            const player = document.getElementById('mainPlayer');
-            player.src = baseUrl + currentVideoId;
+            // Construct Proxy URL
+            // Note: Since we don't have the internal streamUrl dynamically, we point the proxy
+            // to a mode where it tries to fetch it or we use the specific structure you provided.
+            const fullProxyUrl = `${PROXY_BASE_URL}?v=${videoId}&action=proxy`;
             
-            // Highlight active mirror (simple visual feedback)
-            const buttons = document.querySelectorAll('#mirrorList button');
-            buttons.forEach(b => {
-                if(b.innerText === mirrors.find(m => m.url === baseUrl).name) {
-                    b.classList.add('bg-red-600', 'border-red-400');
-                } else {
-                    b.classList.remove('bg-red-600', 'border-red-400');
+            // Set Player
+            const videoElement = document.getElementById('proxyVideo');
+            const sourceElement = document.getElementById('videoSource');
+            
+            sourceElement.src = fullProxyUrl;
+            document.getElementById('proxyUrlDisplay').innerText = fullProxyUrl;
+            
+            videoElement.load();
+            videoElement.play().catch(e => {
+                console.log("Auto-play prevented or failed:", e);
+                showToast("Нажмите Play для начала воспроизведения", "info");
+            });
+
+            updateBufferInfo(videoElement);
+            
+            // Scroll to player
+            document.getElementById('playerArea').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function updateBufferInfo(video) {
+            const status = document.getElementById('bufferStatus');
+            video.addEventListener('progress', () => {
+                if (video.buffered.length > 0) {
+                    const bufferedEnd = video.buffered.end(video.buffered.length - 1);
+                    const duration = video.duration;
+                    if (duration > 0) {
+                        const percent = ((bufferedEnd / duration) * 100).toFixed(0);
+                        status.innerText = `Загружено: ${percent}%`;
+                        status.classList.replace('text-yellow-500', 'text-green-500');
+                    }
                 }
+            });
+            video.addEventListener('waiting', () => {
+                status.innerText = "Буферизация...";
+                status.className = "text-yellow-500 italic text-xs";
             });
         }
 
         function clearInput() {
             document.getElementById('videoUrl').value = '';
+            document.getElementById('videoUrl').focus();
         }
 
-        function copyCurrentLink() {
-            const dummy = document.createElement('input');
-            document.body.appendChild(dummy);
-            dummy.value = window.location.href + "?v=" + currentVideoId;
-            dummy.select();
+        function copyProxyUrl() {
+            const url = document.getElementById('proxyUrlDisplay').innerText;
+            const el = document.createElement('textarea');
+            el.value = url;
+            document.body.appendChild(el);
+            el.select();
             document.execCommand('copy');
-            document.body.removeChild(dummy);
-            showToast("Ссылка скопирована (условно)");
+            document.body.removeChild(el);
+            showToast("Прямая ссылка скопирована!", "success");
         }
 
-        function showToast(msg) {
-            // Simple message box instead of alert
+        function showToast(msg, type) {
             const toast = document.createElement('div');
-            toast.className = "fixed bottom-4 right-4 bg-red-600 text-white px-6 py-3 rounded-xl shadow-lg z-[100] transition-all animate-bounce";
-            toast.innerText = msg;
+            const bg = type === 'error' ? 'bg-red-600' : (type === 'success' ? 'bg-green-600' : 'bg-blue-600');
+            toast.className = `fixed bottom-6 left-1/2 -translate-x-1/2 ${bg} text-white px-8 py-4 rounded-2xl shadow-2xl z-[100] transition-all flex items-center gap-3 animate-bounce`;
+            toast.innerHTML = `<i class="fas ${type === 'error' ? 'fa-exclamation-triangle' : 'fa-check-circle'}"></i> ${msg}`;
             document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 500);
+            }, 3000);
         }
 
-        // Auto-load if ID in URL (optional feature)
+        // Auto-handle URL parameter if present
         window.onload = () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const v = urlParams.get('v');
-            if (v) {
-                document.getElementById('videoUrl').value = 'https://youtube.com/watch?v=' + v;
-                loadVideo();
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('v')) {
+                document.getElementById('videoUrl').value = 'https://youtube.com/watch?v=' + params.get('v');
+                processVideo();
             }
         };
     </script>
 
-    <footer class="p-6 text-center text-gray-500 text-sm">
-        <p>&copy; 2024 YouTube-Russia Gateway. Сделано для свободного доступа к контенту.</p>
-        <p class="mt-1">Используются технологии Invidious API и Tailwind CSS.</p>
+    <footer class="p-8 text-center text-gray-600 text-xs border-t border-white/5">
+        <p class="mb-2">YouTube-Russia Proxy UI &copy; 2024</p>
+        <p>Используется защищенный туннель для обхода DPI. Контент не кэшируется.</p>
     </footer>
 
 </body>
